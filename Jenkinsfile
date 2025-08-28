@@ -33,13 +33,13 @@ node {
     """
     }
  }
-    } catch (Exception e) {
+    } catch (err) {
          currentBuild.result = 'FAILURE'
         throw e
         } finally {
         // Send email only if build was successful
         if (currentBuild.result == 'SUCCESS') {
-            emailext (
+            SendEmail (
                 subject: "✅ SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 body: """
                     <p>Hi Team,</p>
