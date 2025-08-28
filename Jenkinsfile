@@ -33,15 +33,22 @@ node {
     """
     }
  }
-    } catch (err) {
-        echo "An error occurred: {e.getMessage ()}"
-        currentBuild.result = "Failure"
-    } finally {
-        def buildStatus = currentBuild.result ?: 'SUCCESS'
-        SendEmail(
-            "${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
-        <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>""",
-        )
+    } catch (Exception e) {
+         currentBuild.result = 'FAILURE'
+        throw e
+        } finally {
+        // Send email only if build was successful
+        if (currentBuild.result == 'SUCCESS') {
+            emailext(
+                subject: "✅ SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+                    <p>Hi Team,</p>
+                    <p>The build <b>${env.JOB_NAME} #${env.BUILD_NUMBER}</b> completed successfully.</p>
+                    <p><b>Build URL:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
+                """,
+                to: "riyaz.awr57565@gmail.com"
+            )
+        }
 
  
 }
