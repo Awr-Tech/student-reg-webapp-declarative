@@ -39,7 +39,7 @@ node {
         } finally {
         // Send email only if build was successful
         if (currentBuild.result == 'SUCCESS') {
-            emailext(
+            emailext (
                 subject: "✅ SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 body: """
                     <p>Hi Team,</p>
@@ -49,8 +49,7 @@ node {
                 to: "riyaz.awr57565@gmail.com"
             )
         }
-
- 
+        }
 }
 
 
