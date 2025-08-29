@@ -28,7 +28,7 @@ node {
             sshagent(['Tomcat_Server1']) {
                 sh """
                 echo Starting the tomcat process
-                ssh -o StrictHostkeyChecking=no ec2-user@14.201.103.6 sudo systemctl start tomcat
+                ssh -o StrictHostkeyChecking=no ec2-user@13.201.103.6 sudo systemctl start tomcat
                 sleep 10
                 """
             }
@@ -43,7 +43,7 @@ node {
         sendEmail(
            "${env.JOB_NAME} - ${env.BUILD_NUMBER} - Build ${buildStatus}",
            "Build ${buildStatus}. Please check the console output at ${env.BUILD_URL}",
-           'riyaz.awr57565@gmail.com' )
+           'abdulwadoothriyas@gmail.com' )
     }
  
 }
