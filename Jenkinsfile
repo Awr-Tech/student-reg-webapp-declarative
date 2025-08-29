@@ -35,7 +35,7 @@ node {
         }
     } 
      catch (err) {
-        echo "An error occurred: ${e.getMessage()}"
+        echo "An error occurred: ${err.getMessage()}"
         currentBuild.result = 'FAILURE'
     } finally {
         def buildStatus = currentBuild.result ?: 'SUCCESS'
