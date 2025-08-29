@@ -45,7 +45,7 @@ node {
                 <p><b>Build URL:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
                 <p><b>Error:</b> ${err}</p>
             """,
-            to: "riyaz.awr57565@gmail.com"
+            to: "abdulrz1991@gmail.com"
         )
         throw err
     } finally {
@@ -58,7 +58,7 @@ node {
                     <p>The build <b>${env.JOB_NAME} #${env.BUILD_NUMBER}</b> completed successfully.</p>
                     <p><b>Build URL:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
                 """,
-                to: "riyaz.awr57565@gmail.com"
+                to: "abdulrz1991@gmail.com"
             )
         }
     }
