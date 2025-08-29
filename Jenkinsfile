@@ -50,6 +50,7 @@ node {
     
     } finally {
         // Send email only if build was successful
+        currentBuild.result = 'SUCCESS'
         if (currentBuild.result == 'SUCCESS') {
             emailext (
                 subject: "✅ SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
