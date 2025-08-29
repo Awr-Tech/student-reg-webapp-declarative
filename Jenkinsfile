@@ -37,7 +37,7 @@ node {
     catch (err) {
         currentBuild.result = 'FAILURE'
         // Send email if build failed
-        emailext (
+        sendEmail (
             subject: "❌ FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
             body: """
                 <p>Hi Team,</p>
