@@ -47,7 +47,7 @@ node {
             """,
             to: "abdulrz1991@gmail.com"
         )
-        throw err
+    
     } finally {
         // Send email only if build was successful
         if (currentBuild.result == 'SUCCESS') {
@@ -62,4 +62,3 @@ node {
             )
         }
     }
-}
