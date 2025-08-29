@@ -36,7 +36,6 @@ node {
     } 
     catch (err) {
         currentBuild.result = 'FAILURE'
-        // Send email if build failed
         sendEmail (
             subject: "❌ FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
             body: """
@@ -47,11 +46,10 @@ node {
             """,
             to: "abdulrz1991@gmail.com"
         )
-    
+        throw err
     } finally {
         // Send email only if build was successful
-        currentBuild.result = 'SUCCESS'
-        if (currentBuild.result == 'SUCCESS') {
+        if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
             sendEmail (
                 subject: "✅ SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 body: """
@@ -63,9 +61,8 @@ node {
             )
         }
     }
-
-
 }
+
 def sendEmail(String subject, String body, String recipient) {
     emailext(
         subject: subject,
