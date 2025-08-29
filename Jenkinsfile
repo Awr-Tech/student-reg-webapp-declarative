@@ -34,33 +34,19 @@ node {
             }
         }
     } 
-    catch (err) {
+     catch (err) {
+        echo "An error occurred: ${e.getMessage()}"
         currentBuild.result = 'FAILURE'
-        sendEmail (
-            subject: "❌ FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-            body: """
-                <p>Hi Team,</p>
-                <p>The build <b>${env.JOB_NAME} #${env.BUILD_NUMBER}</b> failed.</p>
-                <p><b>Build URL:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
-                <p><b>Error:</b> ${err}</p>
-            """,
-            to: "abdulrz1991@gmail.com"
-        )
-        throw err
     } finally {
-        // Send email only if build was successful
-        if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
-            sendEmail (
-                subject: "✅ SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: """
-                    <p>Hi Team,</p>
-                    <p>The build <b>${env.JOB_NAME} #${env.BUILD_NUMBER}</b> completed successfully.</p>
-                    <p><b>Build URL:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
-                """,
-                to: "abdulrz1991@gmail.com"
-            )
-        }
+        def buildStatus = currentBuild.result ?: 'SUCCESS'
+        def colorcode = buildStatus == 'SUCCESS' ? 'good' : 'danger'
+        slackSend (channel: 'lic-appteam', color: "${colorcode}", message: "Build - ${buildStatus} : ${env.JOB_NAME} #${env.BUILD_NUMBER} - URL: ${env.BUILD_URL}")
+        sendEmail(
+           "${env.JOB_NAME} - ${env.BUILD_NUMBER} - Build ${buildStatus}",
+           "Build ${buildStatus}. Please check the console output at ${env.BUILD_URL}",
+           'abdulrz1991@gmail.com' )
     }
+ 
 }
 
 def sendEmail(String subject, String body, String recipient) {
