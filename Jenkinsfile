@@ -43,7 +43,7 @@ node {
         sendEmail(
            "${env.JOB_NAME} - ${env.BUILD_NUMBER} - Build ${buildStatus}",
            "Build ${buildStatus}. Please check the console output at ${env.BUILD_URL}",
-           'abdulrz1991@gmail.com' )
+           'riyaz.awr57565@gmail.com' )
     }
  
 }
