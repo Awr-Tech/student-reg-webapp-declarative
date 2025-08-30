@@ -34,21 +34,30 @@ node {
             }
         }
     } 
-     catch (err) {
-    currentBuild.result = 'FAILURE'
-    throw err
-} finally {
-    // Send email only if build was successful
-    if (currentBuild.result == 'SUCCESS') {
+    catch (err) {
+        currentBuild.result = 'FAILURE'
         emailext (
-            subject: "✅ SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+            subject: "❌ FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
             body: """
                 <p>Hi Team,</p>
-                <p>The build <b>${env.JOB_NAME} #${env.BUILD_NUMBER}</b> completed successfully.</p>
+                <p>The build <b>${env.JOB_NAME} #${env.BUILD_NUMBER}</b> failed.</p>
                 <p><b>Build URL:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
+                <p><b>Error:</b> ${err}</p>
             """,
             to: "riyaz.awr57565@gmail.com"
-        )   
-}
-}
+        )
+        throw err
+    } finally {
+        if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
+            emailext (
+                subject: "✅ SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+                    <p>Hi Team,</p>
+                    <p>The build <b>${env.JOB_NAME} #${env.BUILD_NUMBER}</b> completed successfully.</p>
+                    <p><b>Build URL:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
+                """,
+                to: "riyaz.awr57565@gmail.com"
+            )
+        }
+    }
 }
