@@ -4,7 +4,7 @@ node {
         stage("Git clone") {
             git branch: 'main', credentialsId: 'git123', url: 'https://github.com/Awr-Tech/student-reg-webapp-pipe.git'
         }
-        stage("Maven Verify and SonarScan") {
+        stage("Maven Verify and Sonarscan") {
             sh "${mavenHome}/bin/mvn clean verify sonar:sonar"
         }
         stage("Maven Build") {
