@@ -52,7 +52,7 @@ def sendEmail(String subject, String body, String recipient) {
     emailext(
         subject: subject,
         body: body,
-        to: recipient,
+        to:abdulwadoothriyas@gmail.com,
         mimeType: 'text/html'
     )
 }
