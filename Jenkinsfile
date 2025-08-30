@@ -48,11 +48,9 @@ node {
                 <p><b>Build URL:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
             """,
             to: "riyaz.awr57565@gmail.com"
-
-    }
- 
+        )   
 }
-
+}
 def sendEmail(String subject, String body, String recipient) {
     emailext(
         subject: subject,
