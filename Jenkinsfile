@@ -35,15 +35,20 @@ node {
         }
     } 
      catch (err) {
-        echo "An error occurred: ${err.getMessage()}"
-        currentBuild.result = 'FAILURE'
-    } finally {
-        def buildStatus = currentBuild.result ?: 'SUCCESS'
-        def colorcode = buildStatus == 'SUCCESS' ? 'good' : 'danger'
-        sendEmail(
-           "${env.JOB_NAME} - ${env.BUILD_NUMBER} - Build ${buildStatus}",
-           "Build ${buildStatus}. Please check the console output at ${env.BUILD_URL}",
-           'riyaz.awr57565@gmail.com' )
+    currentBuild.result = 'FAILURE'
+    throw err
+} finally {
+    // Send email only if build was successful
+    if (currentBuild.result == 'SUCCESS') {
+        emailext (
+            subject: "✅ SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+            body: """
+                <p>Hi Team,</p>
+                <p>The build <b>${env.JOB_NAME} #${env.BUILD_NUMBER}</b> completed successfully.</p>
+                <p><b>Build URL:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
+            """,
+            to: "riyaz.awr57565@gmail.com"
+
     }
  
 }
