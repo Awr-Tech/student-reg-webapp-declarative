@@ -59,3 +59,4 @@ def sendEmail(String subject, String body, String recipient) {
         mimeType: 'text/html'
     )
 }
+}
