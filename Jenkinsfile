@@ -14,7 +14,7 @@ node {
             sshagent(['Tomcat_Server1']) {
                 sh """
                 echo stopping the tomcat process
-                ssh -o StrictHostkeyChecking=no ec2-user@66.2.127.175 sudo systemctl stop tomcat
+                ssh -o StrictHostkeyChecking=no ec2-user@65.2.127.175 sudo systemctl stop tomcat
                 sleep 10
                 """
             }
