@@ -1,62 +1,93 @@
-node {
-    def mavenHome = tool name: 'Maven-3.9.10', type: 'maven'
-    try {
-        stage("Git clone") {
-            git branch: 'main', credentialsId: 'git123', url: 'https://github.com/Awr-Tech/student-reg-webapp-pipe.git'
-        }
-        stage("Maven Verify and SonarScan") {
-            sh "${mavenHome}/bin/mvn clean verify sonar:sonar"
-        }
-        stage("Maven Build") {
-            sh "${mavenHome}/bin/mvn clean deploy"
-        }
-        stage("Stop Tomcat Service") {
-            sshagent(['Tomcat_Server1']) {
-                sh """
-                echo stopping the tomcat process
-                ssh -o StrictHostkeyChecking=no ec2-user@65.2.127.175 sudo systemctl stop tomcat
-                sleep 10
-                """
+pipeline {
+    agent any
+    options {
+  buildDiscarder logRotator(numToKeepStr: '5')
+  timeout(time: 10, unit: 'MINUTES')
+  disableConcurrentBuilds()
+}
+
+    triggers {
+  githubPush()
+}
+    environment {
+        SONARQUBE_URL = "http://3.109.2.174:9000"
+        SONAR_QUBE_TOKEN = credentials('Sonar_Token')
+        TOMCAT_SERVER_IP = "172.31.6.60"
+    }
+    tools {
+        maven 'Maven-3.9.10'
+    }
+    stages {
+        
+        stage("Clean WS") {
+            steps{
+                cleanWs()
             }
         }
-        stage("Deploy War File to tomcat") {
-            sshagent(['Tomcat_Server1']) {
-                sh "scp -o StrictHostkeyChecking=no target/student-reg-webapp.war ec2-user@65.2.127.175:/opt/tomcat/webapps/"
+        stage('GitClone') {
+            steps {
+                git branch: 'main', credentialsId: 'git123', url: 'https://github.com/Awr-Tech/student-reg-webapp-declarative.git'
             }
         }
-        stage("Start Tomcat") {
-            sshagent(['Tomcat_Server1']) {
-                sh """
-                echo Starting the tomcat process
-                ssh -o StrictHostkeyChecking=no ec2-user@65.2.127.175 sudo systemctl start tomcat
-                sleep 10
-                """
+        stage('Maven Clean Package') {
+            steps {
+                sh "mvn clean package"
             }
         }
-    } 
-    catch (err) {
-        currentBuild.result = 'FAILURE'
-        emailext (
-            subject: "❌ FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-            body: """
-                <p>Hi Team,</p>
-                <p>The build <b>${env.JOB_NAME} #${env.BUILD_NUMBER}</b> failed.</p>
-                <p><b>Build URL:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
-                <p><b>Error:</b> ${err}</p>
-            """,
-            to: "riyaz.awr57565@gmail.com"
-        )
-        throw err
-    } finally {
-        if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
-            emailext (
-                subject: "✅ SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: """
-                    <p>Hi Team,</p>
-                    <p>The build <b>${env.JOB_NAME} #${env.BUILD_NUMBER}</b> completed successfully.</p>
-                    <p><b>Build URL:</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
-                """,
-                to: "riyaz.awr57565@gmail.com"
+        stage('Sonar Scan') {
+            steps {
+                sh "mvn sonar:sonar -Dsonar.url=${SONARQUBE_URL} -Dsonar.token=${SONAR_QUBE_TOKEN}"
+            }
+        }
+        stage('Upload War to Nexus') {
+            steps {
+                sh "mvn clean deploy"
+            }
+        }
+        stage('Stop Tomcat Server') {
+            steps {
+                sshagent(['Tomcat_Server1']) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ec2-user@${TOMCAT_SERVER_IP} sudo systemctl stop tomcat
+                        echo stopping the tomcat process
+                        sleep 15
+                    """
+                }
+            }
+        }
+        stage('Copy War File to Tomcat') {
+            steps {
+                sshagent(['Tomcat_Server1']) {
+                    sh "scp -o StrictHostKeyChecking=no target/student-reg-webapp.war ec2-user@${TOMCAT_SERVER_IP}:/opt/tomcat/webapps/"
+                }
+            }
+        }
+        stage('Start Tomcat') {
+            steps {
+                sshagent(['Tomcat_Server1']) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ec2-user@${TOMCAT_SERVER_IP} sudo systemctl start tomcat
+                        echo Starting the tomcat process
+                    """
+                }
+            }
+        }
+    }
+    post {
+        success {
+            emailext(
+                subject: "${env.JOB_NAME} - ${env.BUILD_NUMBER} - Build SUCCESS",
+                body: "Build SUCCESS. Please check the console output at ${env.BUILD_URL}",
+                to: 'riyaz.awr57565@gmail.com',
+                mimeType: 'text/html'
+            )
+        }
+        failure {
+            emailext(
+                subject: "${env.JOB_NAME} - ${env.BUILD_NUMBER} - Build FAILED",
+                body: "Build FAILED. Please check the console output at ${env.BUILD_URL}",
+                to: 'riyaz.awr57565@gmail.com',
+                mimeType: 'text/html'
             )
         }
     }
