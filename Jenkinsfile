@@ -1,3 +1,5 @@
+@library ('awr-shared-library') _
+
 pipeline {
     agent any
     options {
@@ -10,7 +12,7 @@ pipeline {
   githubPush()
 }
     environment {
-        SONARQUBE_URL = "http://3.109.2.174:9000"
+        SONARQUBE_URL = "http://43.204.110.10:9000"
         SONAR_QUBE_TOKEN = credentials('Sonar_Token')
         TOMCAT_SERVER_IP = "172.31.6.60"
     }
@@ -31,7 +33,7 @@ pipeline {
         }
         stage('Maven Clean Package') {
             steps {
-                sh "mvn clean package"
+                mavenBuild
             }
         }
         stage('Sonar Scan') {
