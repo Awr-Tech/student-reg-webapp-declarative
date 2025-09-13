@@ -34,7 +34,7 @@ pipeline {
         }
         stage('Maven Clean Package') {
             steps {
-                mavenBuild
+                mavenBuild ()
             }
         }
         stage('Sonar Scan') {
@@ -77,21 +77,22 @@ pipeline {
         }
     }
     post {
+        always {
+            cleanWs()
+        }
         success {
-            emailext(
-                subject: "${env.JOB_NAME} - ${env.BUILD_NUMBER} - Build SUCCESS",
-                body: "Build SUCCESS. Please check the console output at ${env.BUILD_URL}",
-                to: 'riyaz.awr57565@gmail.com',
-                mimeType: 'text/html'
-            )
+          
+        sendEmailNotifications("${env.JOB_NAME} - ${env.BUILD_NUMBER} - Build SUCCESS",
+           "Build SUCCESS. Please check the console output at ${env.BUILD_URL}",
+           'abdulrz1991@gmail.com' )
+        
         }
         failure {
-            emailext(
-                subject: "${env.JOB_NAME} - ${env.BUILD_NUMBER} - Build FAILED",
-                body: "Build FAILED. Please check the console output at ${env.BUILD_URL}",
-                to: 'riyaz.awr57565@gmail.com',
-                mimeType: 'text/html'
-            )
+         
+        
+         sendEmailNotifications( "${env.JOB_NAME} - ${env.BUILD_NUMBER} - Build FAILED",
+           "Build FAILED. Please check the console output at ${env.BUILD_URL}",
+           'abdulrz1991@gmail.com' )
         }
     }
 }
