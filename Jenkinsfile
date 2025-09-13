@@ -1,4 +1,4 @@
-@library ('awr-shared-library') _
+@Library ('awr-shared-library') _
 
 pipeline {
     agent any
